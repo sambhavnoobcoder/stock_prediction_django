@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Prediction Chart</h2>
+
+  {% if prediction %}
+    <div class="prediction-info">
+      <h3>Prediction Information</h3>
+      <table>
+        <tr>
+          <th>Stock Symbol:</th>
+          <td>{{ prediction.stock_symbol }}</td>
+        </tr>
+        <tr>
+          <th>Algorithm:</th>
+          <td>{{ prediction.algorithm }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="prediction-results">
+      <h3>Predicted Prices</h3>
+      {% if predicted_prices %}
+        <table>
+          <tr>
+            <th>Day</th>
+            <th>Predicted Price</th>
+          </tr>
+          {% for day, price in predicted_prices.items %}
+            <tr>
+              <td>{{ day }}</td>
+              <td>{{ price }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <p>No prediction data available.</p>
+      {% endif %}
+    </div>
+
+    <div id="chart-container">
+      <div id="chart"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.28.0/dist/apexcharts.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var options = {
+          series: [{
+            name: "Predicted Price",
+            data: [{% for day, price in predicted_prices.items %}{ x: "{{ day }}", y: {{ price }} },{% endfor %}]
+          }],
+          chart: {
+            type: 'line',
+            height: '100%',
+            parentHeightOffset: 0
+          },
+          xaxis: {
+            type: 'category',
+            title: {
+              text: 'Day'
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Price'
+            }
+          }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+      });
+    </script>
+
+  {% else %}
+    <p>No prediction data available.</p>
+  {% endif %}
+{% endblock %}

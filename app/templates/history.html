@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Prediction History</h2>
+  {% if predictions %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Stock Symbol</th>
+          <th>Algorithm</th>
+          <th>Prediction Result</th>
+          <th>Prediction Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prediction in predictions %}
+          <tr>
+            <td>{{ prediction.stock_symbol }}</td>
+            <td>{{ prediction.algorithm }}</td>
+            <td>{{ prediction.result }}</td>
+            <td>{{ prediction.date }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No prediction history found.</p>
+  {% endif %}
+{% endblock %}
