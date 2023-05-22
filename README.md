@@ -1,6 +1,6 @@
 # stock_prediction_django
 
-stock prediction app using django frame work . its main features are :
+stock prediction app using django frame work . its demo video is as follows:
 
 
 
