@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'bootstrap4',
     'app',
+    'social_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -31,6 +33,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -46,6 +49,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',  # <-- Here
+                'social_django.context_processors.login_redirect', # <-- Here
             ],
             'libraries': {
                 'staticfiles': 'django.templatetags.static',
@@ -53,6 +58,14 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.github.GithubOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
@@ -94,3 +107,13 @@ LOGIN_REDIRECT_URL = 'predict'
 django_heroku.settings(locals())
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CRISPY_ALLOWED_TEMPLATE_PACKS = ('bootstrap', 'uni_form', 'bootstrap4')
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+SOCIAL_AUTH_GITHUB_KEY = 'd6a3bb00344e8109f03b'
+# SOCIAL_AUTH_GITHUB_SECRET = 'ca54abac87fd44478a02f28e4d6caada65353dad'
+SOCIAL_AUTH_GITHUB_SECRET='798f6cdc1ea3c4dbce94ecb6979cf4df62f8a730'
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/settings/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/settings/'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False

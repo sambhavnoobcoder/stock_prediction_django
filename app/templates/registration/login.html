@@ -8,4 +8,5 @@
     <button type="submit" class="btn btn-primary">Log In</button>
   </form>
   <p>Don't have an account yet? <a href="{% url 'register' %}">Sign up here</a>.</p>
+  <a href="{% url 'social:begin' 'github' %}">Login with Github</a>
 {% endblock %}

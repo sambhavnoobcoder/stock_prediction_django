@@ -13,9 +13,95 @@ from django.http import Http404
 import yfinance as yf
 import numpy as np
 import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from social_django.models import UserSocialAuth
+
+class SettingsView(LoginRequiredMixin, TemplateView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+
+        try:
+            github_login = user.social_auth.get(provider='github')
+            print("github is logged in")
+        except UserSocialAuth.DoesNotExist:
+            github_login = None
+
+        try:
+            twitter_login = user.social_auth.get(provider='twitter')
+        except UserSocialAuth.DoesNotExist:
+            twitter_login = None
+
+        try:
+            facebook_login = user.social_auth.get(provider='facebook')
+        except UserSocialAuth.DoesNotExist:
+            facebook_login = None
+
+        can_disconnect = (user.social_auth.count() > 1 or user.has_usable_password())
+
+        return render(request, 'settings.html', {
+            'github_login': github_login,
+            'twitter_login': twitter_login,
+            'facebook_login': facebook_login,
+            'can_disconnect': can_disconnect
+        })
 
 
+@login_required
+def password(request):
+    if request.user.has_usable_password():
+        PasswordForm = PasswordChangeForm
+    else:
+        PasswordForm = AdminPasswordChangeForm
 
+    if request.method == 'POST':
+        form = PasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('password')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordForm(request.user)
+    return render(request, 'password.html', {'form': form})
+
+class UserRegistrationAPIView(APIView):
+    def get(self, request):
+        form = UserRegistrationForm(request.data)
+        return render( request,'register.html',{'form': form})  # Redirect to the register.html page for GET requests
+
+    def post(self, request):
+        form = UserRegistrationForm(request.data)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            confirm_password = form.cleaned_data['confirm_password']
+
+            if password != confirm_password:
+                return Response({'error': "Passwords do not match."}, status=400)
+
+            user = User.objects.create_user(username=username, email=email, password=password)
+
+            # return Response({'message': "Registration successful."}, status=201)
+            return redirect('login')
+        else:
+            # return Response(form.errors, status=400)
+            form = UserRegistrationForm()
+
+            return render(request, 'register.html', {'form': form})
 
 @login_required
 def home(request):
