@@ -20,3 +20,4 @@ app features are:
 *Provision of at least two algorithms for stock prediction.
 *Benchmarking of predictions against actual data for evaluation.
 
+a rest api version coming up soon . free to anybody to make contributions and help out as well .
